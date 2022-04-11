@@ -5,6 +5,8 @@ class Artwork(db.Model):
     __tablename__ = 'artwork'
     id = db.Column(db.Integer, primary_key=True)
     artworkLink = db.Column(db.String(250))
+    contentLink = db.Column(db.String(250))
+    styleLink = db.Column(db.String(250))
     profile_id = db.Column(db.Integer, db.ForeignKey('profile.id'))
 
     def serialize(self):

@@ -29,7 +29,7 @@ def register():
   db.session.commit()
 
   new_user = User.query.filter_by(email=data["email"]).first()
-  profile_data = { "name": data["name"], "user_id": new_user.id }
+  profile_data = { "name": data["name"], "user_id": new_user.id, "username": data["username"] }
 
   profile = Profile(**profile_data)
   db.session.add(profile)
@@ -48,7 +48,7 @@ def login():
 
   if user and compare_password(data['password'], user.password):
     profile = user.profile.serialize()
-    payload = { "name": profile["name"], "id": profile["id"] }
+    payload = { "name": profile["name"], "id": profile["id"], "username":profile["username"] }
 
     token = create_token(payload)
     return jsonify(profile=payload, token=token), 200
