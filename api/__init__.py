@@ -7,6 +7,9 @@ from config import Config
 # ============ Import Models ============
 from api.models.user import User
 from api.models.profile import Profile
+from api.models.artwork import Artwork
+from api.models.blog import Blog
+from api.models.comment import Comment
 
 # ============ Import Views ============
 from api.views.auth import auth
