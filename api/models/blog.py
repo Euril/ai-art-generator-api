@@ -7,6 +7,9 @@ class Blog(db.Model):
     date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     caption = db.Column(db.String(140), nullable=False)
     profile_id = db.Column(db.Integer, db.ForeignKey('profile.id'), nullable=False)
+    artworkLink = db.Column(db.String(250))
+    contentLink = db.Column(db.String(250))
+    styleLink = db.Column(db.String(250))
     comments = db.relationship("Comment", cascade='all')
 
     def serialize(self):
