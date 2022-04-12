@@ -52,3 +52,20 @@ def create():
    # db.session.add(cat)
    # db.session.commit()
    return jsonify(artwork.serialize()), 201
+
+@artworks.route('/<id>', methods=["GET"])
+@login_required
+def showProfilesArtwork(id):
+   print('sanity check - show !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+   #artworks = Artwork.query.all() #filter_by(profile_id=id).first()
+   artworks = Artwork.query.filter_by(profile_id = id) 
+   artworks_data = [artwork.serialize() for artwork in artworks]
+   print('artworks data - ', artworks_data)
+#   cat_data["fed"] = cat.fed_for_today()
+
+  # Add the following:
+#   toys = Toy.query.filter(Toy.id.notin_([toy.id for toy in cat.toys])).all()
+#   toys=[toy.serialize() for toy in toys]
+
+   return jsonify(artworks_data), 200 # <=== Include toys in response ret
+
