@@ -14,6 +14,7 @@ from api.models.comment import Comment
 # ============ Import Views ============
 from api.views.auth import auth
 from api.views.artworks import artworks
+from api.views.blogs import blogs
 
 cors = CORS()
 migrate = Migrate() 
@@ -29,7 +30,8 @@ def create_app(config):
 
   # ============ Register Blueprints ============
   app.register_blueprint(auth, url_prefix='/api/auth') 
-  app.register_blueprint(artworks, url_prefix='/api/artworks') 
+  app.register_blueprint(artworks, url_prefix='/api/artworks')
+  app.register_blueprint(blogs, url_prefix='/api/blogs') 
 
   return app
 
