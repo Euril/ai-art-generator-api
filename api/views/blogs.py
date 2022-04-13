@@ -20,6 +20,22 @@ def create():
   db.session.commit()
   return jsonify(blog.serialize()), 201
 
+@blogs.route('/update/<id>', methods=["PATCH"])
+@login_required
+def update(id):
+  data = request.get_json()
+  profile = read_token(request)
+  blog = Blog.query.filter_by(id=id).first()
+
+  if blog.profile_id != profile["id"]:
+    return 'Forbidden', 403
+
+  for key in data:
+    setattr(blog, key, data[key])
+
+  db.session.commit()
+  return jsonify(blog.serialize()), 200
+
 @blogs.route('/<id>/comment/new/', methods=["POST"])
 @login_required
 def createComment(id):
@@ -34,6 +50,18 @@ def createComment(id):
   db.session.commit()
   return jsonify(comment.serialize()), 201
 
+@blogs.route('/<id>', methods=["DELETE"]) 
+@login_required
+def delete(id):
+  profile = read_token(request)
+  blog = Blog.query.filter_by(id=id).first()
+
+  if blog.profile_id != profile["id"]:
+    return 'Forbidden', 403
+
+  db.session.delete(blog)
+  db.session.commit()
+  return jsonify(message="Success"), 200
 
 # INDEX the cats
 # conceptialize the route: api/cats
