@@ -82,25 +82,27 @@ if __name__ != '__main__':
     def deprocess_image(img):
       print('incoming img: ',img)
       print('incoming img shape: ', img.shape)
-      img = img.numpy() 
-      if (len(img.shape)==4):
-        img = img.squeeze(img, axis=0)
+      img = img.numpy()
+      #img = np.reshape(img,(384,384,3)) 
+      img = np.squeeze(img, axis=0)
+      img = (img * 255).astype(np.uint8)
       return img
 
     #content_image = deprocess_image(content_image)
     #style_image = deprocess_image(style_image)
-    #stylized_image = deprocess_image(stylized_image)
+    
 
     #stylized_image = stylized_image.numpy()
-    print('stylized image: ', stylized_image)
+    #print('stylized image: ', stylized_image)
     #stylized_image = np.squeeze(stylized_image, axis=0)
-    print('stylized image shape: ', stylized_image.shape)
-    print('max min stylized image: ', np.max(stylized_image), np.min(stylized_image))
+    #print('stylized image shape: ', stylized_image.shape)
+    #print('max min stylized image: ', np.max(stylized_image), np.min(stylized_image))
     
     # Visualize input images and the generated stylized image.
 
-    show_n([content_image, style_image, stylized_image], titles=['Original content image', 'Style image', 'Stylized image'])
+    #show_n([content_image, style_image, stylized_image], titles=['Original content image', 'Style image', 'Stylized image'])
 
+    stylized_image = deprocess_image(stylized_image)
+    print('returning stylized image', stylized_image)
 
-
-    return content_image, style_image, stylized_image
+    return stylized_image
