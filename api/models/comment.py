@@ -10,6 +10,6 @@ class Comment(db.Model):
     blog_id = db.Column(db.Integer, db.ForeignKey('blog.id'))
 
     def serialize(self):
-      comment = {c.namcoe: getattr(self, c.name) for c in self.__table__.columns}
+      comment = {c.name: getattr(self, c.name) for c in self.__table__.columns}
       return comment
     
