@@ -1,4 +1,9 @@
-# flask-api-auth-template
+## Backend API Python Flask
+Works alongside
+[https://github.com/Euril/ai-art-generator-front-end]
+
+
+<!-- # flask-api-auth-template
 
 **Warning. This template should only be used if you are building out a Flask API.**
 
@@ -93,4 +98,4 @@ Run the following command to start your application.  start
 
 ```bash
 python3 app.py
-```
+``` -->

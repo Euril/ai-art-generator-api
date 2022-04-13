@@ -5,7 +5,7 @@ import os
 from api.middleware import login_required, read_token
 from api.models.db import db
 from api.models.artwork import Artwork
-from AIArtGenerator import AIGenerateImage
+# from AIArtGenerator import AIGenerateImage
 
 load_dotenv()
 
@@ -38,17 +38,15 @@ def create():
    contentImageURL = uploadResultContent['url']
    styleImageURL = uploadResultStyle['url']
 
-   contentImageT, styleImageT, generatedImage = AIGenerateImage(contentImageURL, styleImageURL)
+   # contentImageT, styleImageT, generatedImage = AIGenerateImage(contentImageURL, styleImageURL)
 
-   print('I think we are about to crash here: ')
-   print('content Image: ', contentImage)
+   
+   
    #uploadResultContent = cloudinary.uploader.upload(contentImage)
-   print('Or here for style image: ')
+   
    #uploadResultStyle = cloudinary.uploader.upload(styleImage)
-   print('Or here for stylized image: ')
+   
    #uploadResultGenerated = cloudinary.uploader.upload(generatedImage)
-
-   print("Psyche, we didn't crash!")
 
    contentImageURL = uploadResultContent['url']
    styleImageURL = uploadResultStyle['url']
