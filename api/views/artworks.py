@@ -21,72 +21,75 @@ cloudinary.config(cloud_name = os.getenv('CLOUD_NAME'), api_key=os.getenv('API_K
 @artworks.route('/', methods=["POST"])
 @login_required
 def create():
-   # for entries in request.files:
-   #    print('Entry: ',request.files[entries])
+   try:
+      # for entries in request.files:
+      #    print('Entry: ',request.files[entries])
 
-   contentImage = request.files['content-image']
-   styleImage = request.files['style-image']
+      contentImage = request.files['content-image']
+      styleImage = request.files['style-image']
 
-   # upload content AND style image to cloudinary
-   # uploadResultContent = cloudinary.uploader.upload(request.files['content-image'])
-   # uploadResultStyle = cloudinary.uploader.upload(request.files['style-image'])
-   # print(uploadResultStyle)
+      # upload content AND style image to cloudinary
+      # uploadResultContent = cloudinary.uploader.upload(request.files['content-image'])
+      # uploadResultStyle = cloudinary.uploader.upload(request.files['style-image'])
+      # print(uploadResultStyle)
 
-   print('contentImg info', contentImage)
-   uploadResultContent = cloudinary.uploader.upload(contentImage)
-   uploadResultStyle = cloudinary.uploader.upload(styleImage)
+      print('contentImg info', contentImage)
+      uploadResultContent = cloudinary.uploader.upload(contentImage)
+      uploadResultStyle = cloudinary.uploader.upload(styleImage)
 
-   contentImageURL = uploadResultContent['url']
-   styleImageURL = uploadResultStyle['url']
+      contentImageURL = uploadResultContent['url']
+      styleImageURL = uploadResultStyle['url']
 
-   generatedImageNumpy = AIGenerateImage(contentImageURL, styleImageURL)
-   generatedImage = im.fromarray(generatedImageNumpy)
-   imgHash = abs(hash(contentImageURL + styleImageURL)) 
-   print('generated image hash: ', imgHash)
-   imgPath = 'image_{}.png'.format(imgHash)
-   generatedImage.save(imgPath)
+      generatedImageNumpy = AIGenerateImage(contentImageURL, styleImageURL)
+      generatedImage = im.fromarray(generatedImageNumpy)
+      imgHash = abs(hash(contentImageURL + styleImageURL)) 
+      print('generated image hash: ', imgHash)
+      imgPath = 'image_{}.png'.format(imgHash)
+      generatedImage.save(imgPath)
 
-   print('I think we are about to crash here: ')
-   uploadResultGenerate = cloudinary.uploader.upload(imgPath)
-   os.remove(imgPath)
-   print('We made it!!!!!!!!!!!!!!!!!!!!!!!!')
-   #uploadResultContent = cloudinary.uploader.upload(contentImage)
-   print('Or here for style image: ')
-   #uploadResultStyle = cloudinary.uploader.upload(styleImage)
-   print('Or here for stylized image: ')
-   #uploadResultGenerated = cloudinary.uploader.upload(generatedImage)
+      print('I think we are about to crash here: ')
+      uploadResultGenerate = cloudinary.uploader.upload(imgPath)
+      os.remove(imgPath)
+      print('We made it!!!!!!!!!!!!!!!!!!!!!!!!')
+      #uploadResultContent = cloudinary.uploader.upload(contentImage)
+      print('Or here for style image: ')
+      #uploadResultStyle = cloudinary.uploader.upload(styleImage)
+      print('Or here for stylized image: ')
+      #uploadResultGenerated = cloudinary.uploader.upload(generatedImage)
 
-   print("Psyche, we didn't crash!")
+      print("Psyche, we didn't crash!")
 
-   contentImageURL = uploadResultContent['url']
-   styleImageURL = uploadResultStyle['url']
-   #generatedImageURL = uploadResultGenerated['url']
-   generatedImageURL = uploadResultGenerate['url']
+      contentImageURL = uploadResultContent['url']
+      styleImageURL = uploadResultStyle['url']
+      #generatedImageURL = uploadResultGenerated['url']
+      generatedImageURL = uploadResultGenerate['url']
 
 
-   #generatedImageURL = uploadResultContent['url']
+      #generatedImageURL = uploadResultContent['url']
 
-   # print('content image url: ', contentImageURL)
-   profile = read_token(request)
+      # print('content image url: ', contentImageURL)
+      profile = read_token(request)
 
-   data = {
-      "artworkLink": generatedImageURL,
-      "contentLink": contentImageURL,
-      "styleLink": styleImageURL,
-      "profile_id": profile["id"]
-   }
+      data = {
+         "artworkLink": generatedImageURL,
+         "contentLink": contentImageURL,
+         "styleLink": styleImageURL,
+         "profile_id": profile["id"]
+      }
 
-   artwork = Artwork(**data)
-   db.session.add(artwork)
-   db.session.commit()
-   #data = request.get_json()
-   #print('our data: ', data)
-   # profile = read_token(request)
-   #data["profile_id"] = profile["id"]
-   # cat = Cat(**data)
-   # db.session.add(cat)
-   # db.session.commit()
-   return jsonify(artwork.serialize()), 201
+      artwork = Artwork(**data)
+      db.session.add(artwork)
+      db.session.commit()
+      #data = request.get_json()
+      #print('our data: ', data)
+      # profile = read_token(request)
+      #data["profile_id"] = profile["id"]
+      # cat = Cat(**data)
+      # db.session.add(cat)
+      # db.session.commit()
+      return jsonify(artwork.serialize()), 201
+   except:
+      return jsonify(message="Failue"), 500
 
 @artworks.route('/<id>', methods=["GET"])
 @login_required
