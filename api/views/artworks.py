@@ -5,7 +5,8 @@ import os
 from api.middleware import login_required, read_token
 from api.models.db import db
 from api.models.artwork import Artwork
-# from AIArtGenerator import AIGenerateImage
+from AIArtGenerator import AIGenerateImage
+from PIL import Image as im
 
 load_dotenv()
 
@@ -20,77 +21,102 @@ cloudinary.config(cloud_name = os.getenv('CLOUD_NAME'), api_key=os.getenv('API_K
 @artworks.route('/', methods=["POST"])
 @login_required
 def create():
-   # for entries in request.files:
-   #    print('Entry: ',request.files[entries])
+   try:
+      # for entries in request.files:
+      #    print('Entry: ',request.files[entries])
 
-   contentImage = request.files['content-image']
-   styleImage = request.files['style-image']
+      contentImage = request.files['content-image']
+      styleImage = request.files['style-image']
 
-   # upload content AND style image to cloudinary
-   #uploadResultContent = cloudinary.uploader.upload(request.files['content-image'])
-   #uploadResultStyle = cloudinary.uploader.upload(request.files['style-image'])
-   # print(uploadResultStyle)
+      # upload content AND style image to cloudinary
+      # uploadResultContent = cloudinary.uploader.upload(request.files['content-image'])
+      # uploadResultStyle = cloudinary.uploader.upload(request.files['style-image'])
+      # print(uploadResultStyle)
 
-   print('contentImg info', contentImage)
-   uploadResultContent = cloudinary.uploader.upload(contentImage)
-   uploadResultStyle = cloudinary.uploader.upload(styleImage)
+      print('contentImg info', contentImage)
+      uploadResultContent = cloudinary.uploader.upload(contentImage)
+      uploadResultStyle = cloudinary.uploader.upload(styleImage)
 
-   contentImageURL = uploadResultContent['url']
-   styleImageURL = uploadResultStyle['url']
+      contentImageURL = uploadResultContent['url']
+      styleImageURL = uploadResultStyle['url']
 
-   # contentImageT, styleImageT, generatedImage = AIGenerateImage(contentImageURL, styleImageURL)
+      generatedImageNumpy = AIGenerateImage(contentImageURL, styleImageURL)
+      generatedImage = im.fromarray(generatedImageNumpy)
+      imgHash = abs(hash(contentImageURL + styleImageURL)) 
+      print('generated image hash: ', imgHash)
+      imgPath = 'image_{}.png'.format(imgHash)
+      generatedImage.save(imgPath)
 
-   
-   
-   #uploadResultContent = cloudinary.uploader.upload(contentImage)
-   
-   #uploadResultStyle = cloudinary.uploader.upload(styleImage)
-   
-   #uploadResultGenerated = cloudinary.uploader.upload(generatedImage)
+      print('I think we are about to crash here: ')
+      uploadResultGenerate = cloudinary.uploader.upload(imgPath)
+      os.remove(imgPath)
+      print('We made it!!!!!!!!!!!!!!!!!!!!!!!!')
+      #uploadResultContent = cloudinary.uploader.upload(contentImage)
+      print('Or here for style image: ')
+      #uploadResultStyle = cloudinary.uploader.upload(styleImage)
+      print('Or here for stylized image: ')
+      #uploadResultGenerated = cloudinary.uploader.upload(generatedImage)
 
-   contentImageURL = uploadResultContent['url']
-   styleImageURL = uploadResultStyle['url']
-   #generatedImageURL = uploadResultGenerated['url']
-   generatedImageURL = uploadResultContent['url']
+      print("Psyche, we didn't crash!")
+
+      contentImageURL = uploadResultContent['url']
+      styleImageURL = uploadResultStyle['url']
+      #generatedImageURL = uploadResultGenerated['url']
+      generatedImageURL = uploadResultGenerate['url']
 
 
-   #generatedImageURL = uploadResultContent['url']
+      #generatedImageURL = uploadResultContent['url']
 
-   # print('content image url: ', contentImageURL)
-   profile = read_token(request)
+      # print('content image url: ', contentImageURL)
+      profile = read_token(request)
 
-   data = {
-      "artworkLink": generatedImageURL,
-      "contentLink": contentImageURL,
-      "styleLink": styleImageURL,
-      "profile_id": profile["id"]
-   }
+      data = {
+         "artworkLink": generatedImageURL,
+         "contentLink": contentImageURL,
+         "styleLink": styleImageURL,
+         "profile_id": profile["id"]
+      }
 
-   artwork = Artwork(**data)
-   db.session.add(artwork)
-   db.session.commit()
-   #data = request.get_json()
-   #print('our data: ', data)
-   # profile = read_token(request)
-   #data["profile_id"] = profile["id"]
-   # cat = Cat(**data)
-   # db.session.add(cat)
-   # db.session.commit()
-   return jsonify(artwork.serialize()), 201
+      artwork = Artwork(**data)
+      db.session.add(artwork)
+      db.session.commit()
+      #data = request.get_json()
+      #print('our data: ', data)
+      # profile = read_token(request)
+      #data["profile_id"] = profile["id"]
+      # cat = Cat(**data)
+      # db.session.add(cat)
+      # db.session.commit()
+      return jsonify(artwork.serialize()), 201
+   except:
+      return jsonify(message="Failue"), 500
 
 @artworks.route('/<id>', methods=["GET"])
 @login_required
 def showProfilesArtwork(id):
-   print('sanity check - show !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-   #artworks = Artwork.query.all() #filter_by(profile_id=id).first()
-   artworks = Artwork.query.filter_by(profile_id = id) 
-   artworks_data = [artwork.serialize() for artwork in artworks]
-   print('artworks data - ', artworks_data)
-#   cat_data["fed"] = cat.fed_for_today()
+   try:
+      print('sanity check - show !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+      #artworks = Artwork.query.all() #filter_by(profile_id=id).first()
+      artworks = Artwork.query.filter_by(profile_id = id) 
+      artworks_data = [artwork.serialize() for artwork in artworks]
+      return jsonify(artworks_data), 200 # <=== Include toys in response ret
+   except:
+      return jsonify(message="Failue"), 500
 
-  # Add the following:
-#   toys = Toy.query.filter(Toy.id.notin_([toy.id for toy in cat.toys])).all()
-#   toys=[toy.serialize() for toy in toys]
+@artworks.route('/<id>', methods=["DELETE"]) 
+@login_required
+def delete(id):
+  try:
+    profile = read_token(request)
+    artwork = Artwork.query.filter_by(id=id).first()
 
-   return jsonify(artworks_data), 200 # <=== Include toys in response ret
+    if artwork.profile_id != profile["id"]:
+      return 'Forbidden', 403
+
+    db.session.delete(artwork)
+    db.session.commit()
+    return jsonify(message="Success"), 200
+  except:
+    return jsonify(message="Failue"), 500
+
 
