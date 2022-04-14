@@ -10,58 +10,70 @@ blogs = Blueprint('blogs', 'blogs')
 @blogs.route('/', methods=["POST"])
 @login_required
 def create():
-  # print('SANITY CHECK FOR CREATE BLOG')
-  data = request.get_json()
-  # print('DATA: ', data)
-  profile = read_token(request)
-  data["profile_id"] = profile["id"]
-  blog = Blog(**data)
-  db.session.add(blog)
-  db.session.commit()
-  return jsonify(blog.serialize()), 201
+  try:
+    # print('SANITY CHECK FOR CREATE BLOG')
+    data = request.get_json()
+    # print('DATA: ', data)
+    profile = read_token(request)
+    data["profile_id"] = profile["id"]
+    blog = Blog(**data)
+    db.session.add(blog)
+    db.session.commit()
+    return jsonify(blog.serialize()), 201
+  except:
+    return jsonify(message="Failue"), 500
 
 @blogs.route('/update/<id>', methods=["PATCH"])
 @login_required
 def update(id):
-  data = request.get_json()
-  profile = read_token(request)
-  blog = Blog.query.filter_by(id=id).first()
+  try:
+    data = request.get_json()
+    profile = read_token(request)
+    blog = Blog.query.filter_by(id=id).first()
 
-  if blog.profile_id != profile["id"]:
-    return 'Forbidden', 403
+    if blog.profile_id != profile["id"]:
+      return 'Forbidden', 403
 
-  for key in data:
-    setattr(blog, key, data[key])
+    for key in data:
+      setattr(blog, key, data[key])
 
-  db.session.commit()
-  return jsonify(blog.serialize()), 200
+    db.session.commit()
+    return jsonify(blog.serialize()), 200
+  except:
+    return jsonify(message="Failue"), 500
 
 @blogs.route('/<id>/comment/new/', methods=["POST"])
 @login_required
 def createComment(id):
-  print('SANITY CHECK FOR CREATE COMMENT')
-  data = request.get_json()
-  print('DATA: ', data)
-  profile = read_token(request)
-  data["profile_id"] = profile["id"]
- # data["blog_id"] = id
-  comment = Comment(**data)
-  db.session.add(comment)
-  db.session.commit()
-  return jsonify(comment.serialize()), 201
+  try: 
+    print('SANITY CHECK FOR CREATE COMMENT')
+    data = request.get_json()
+    print('DATA: ', data)
+    profile = read_token(request)
+    data["profile_id"] = profile["id"]
+  # data["blog_id"] = id
+    comment = Comment(**data)
+    db.session.add(comment)
+    db.session.commit()
+    return jsonify(comment.serialize()), 201
+  except:
+    return jsonify(message="Failue"), 500
 
 @blogs.route('/<id>', methods=["DELETE"]) 
 @login_required
 def delete(id):
-  profile = read_token(request)
-  blog = Blog.query.filter_by(id=id).first()
+  try:
+    profile = read_token(request)
+    blog = Blog.query.filter_by(id=id).first()
 
-  if blog.profile_id != profile["id"]:
-    return 'Forbidden', 403
+    if blog.profile_id != profile["id"]:
+      return 'Forbidden', 403
 
-  db.session.delete(blog)
-  db.session.commit()
-  return jsonify(message="Success"), 200
+    db.session.delete(blog)
+    db.session.commit()
+    return jsonify(message="Success"), 200
+  except:
+    return jsonify(message="Failue"), 500
 
 # INDEX the cats
 # conceptialize the route: api/cats
@@ -69,8 +81,11 @@ def delete(id):
 @blogs.route('/', methods=["GET"])
 # build out controller
 def index():
+  try:
     blogs = Blog.query.all()
     return jsonify([blog.serialize() for blog in blogs]), 200
+  except:
+    return jsonify(message="Failue"), 500
 
 
 # create a blog post
