@@ -103,3 +103,20 @@ def showProfilesArtwork(id):
    except:
       return jsonify(message="Failue"), 500
 
+@artworks.route('/<id>', methods=["DELETE"]) 
+@login_required
+def delete(id):
+  try:
+    profile = read_token(request)
+    artwork = Artwork.query.filter_by(id=id).first()
+
+    if artwork.profile_id != profile["id"]:
+      return 'Forbidden', 403
+
+    db.session.delete(artwork)
+    db.session.commit()
+    return jsonify(message="Success"), 200
+  except:
+    return jsonify(message="Failue"), 500
+
+
