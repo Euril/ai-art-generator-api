@@ -1,12 +1,10 @@
 import functools
 import os
 
-from matplotlib import gridspec
+#from matplotlib import gridspec
 #import matplotlib.pylab as plt
 import numpy as np
-#import tensorflow as tf
-import tensorflow.io as tf_io
-import tensorflow.image as tf_image
+import tensorflow as tf
 import tensorflow_hub as hub
 
 print("TF Version: ", tf.__version__)
